@@ -1,9 +1,12 @@
 package com.example.auctionimagerenamer;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -13,23 +16,35 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends Application {
-
 
     @Override
     public void start(Stage stage) throws IOException {
 
 
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("hello-view.fxml"));
+
+
+
+
         Label label = new Label();
         label.setText("Input lot num:");
 
         Label label1 = new Label();
         label1.setText("Input amount of pictures:");
 
+        Label listLabel = new Label();
+        listLabel.setText("");
+
+
+        Button btn = new Button("Send");
+
         TextField lotEntry = new TextField();
         TextField pictureEntry = new TextField();
+        TextField filePath = new TextField("Please paste your filepath here.");
 
         VBox vbox = new VBox();
         VBox vbox1 = new VBox();
@@ -49,44 +64,80 @@ public class Main extends Application {
 
         vbox1.getChildren().add(lotEntry);
         vbox1.getChildren().add(pictureEntry);
+        vbox1.getChildren().add(btn);
 
         BorderPane pane = new BorderPane();
         pane.setCenter(hbox);
+        pane.setTop(filePath);
+        pane.setBottom(listLabel);
 
 
 
         Scene scene = new Scene(pane, 500, 600);
 
 
-        stage.setTitle("Hello!");
+        stage.setTitle("Alex made this");
         stage.setScene(scene);
         stage.show();
+
+
+        //event handler
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+
+                String folderPath  = filePath.getText();
+                int amountOfPictures = Integer.parseInt(pictureEntry.getText());
+                int lotNum = Integer.parseInt(lotEntry.getText());
+
+
+
+                renameFiles(folderPath, amountOfPictures, lotNum);
+
+
+                lotEntry.setText(String.valueOf(lotNum + 1));
+                pictureEntry.setText("");
+            }
+        };
+
+        btn.setOnAction(event);
     }
 
     public static void main(String[] args) {
+        launch();
+
+    }
 
 
-        String folderPath = "C:\\Users\\alex_\\Desktop\\AUCTION PICS 2";
 
+    public static void renameFiles(String folderPath, int amountOfPictures, int lotNum){
+
+        int count = 0;
         File myFolder = new File(folderPath);
-        int amountOfPictures = 4;
-        int fileName = 651;
 
         File[] file_array = myFolder.listFiles();
+
         for(int i = 0; i < file_array.length; i++){
+
+            if(count == amountOfPictures){
+                System.out.println("finished");
+            }else{
                 if (file_array[i].isFile()) {
                     File myfile = new File(folderPath + "\\" + file_array[i].getName());
 
-
-                    myfile.renameTo(new File(folderPath + "\\" + fileName + "-"  + ".png"));
-
-
+                    if(count < 1){
+                        myfile.renameTo(new File(folderPath + "\\" + lotNum + ".png"));
+                    }else{
+                        myfile.renameTo(new File(folderPath + "\\" + lotNum + "-" + (count+1) + ".png"));
+                    }
                 }
+                count++;
+            }
+
+
+
         }
-
-
-        launch();
-
 
     }
 }
