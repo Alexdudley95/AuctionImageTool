@@ -16,19 +16,14 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.JOptionPane;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
 
-
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("hello-view.fxml"));
-
-
-
 
         Label label = new Label();
         label.setText("Input lot num:");
@@ -38,7 +33,6 @@ public class Main extends Application {
 
         Label listLabel = new Label();
         listLabel.setText("");
-
 
         Button btn = new Button("Send");
 
@@ -71,12 +65,10 @@ public class Main extends Application {
         pane.setTop(filePath);
         pane.setBottom(listLabel);
 
+        Scene scene = new Scene(pane, 400, 150);
 
 
-        Scene scene = new Scene(pane, 500, 600);
-
-
-        stage.setTitle("Alex made this");
+        stage.setTitle("Lot Numbering Tool");
         stage.setScene(scene);
         stage.show();
 
@@ -86,17 +78,18 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent actionEvent) {
 
-
                 String folderPath  = filePath.getText();
+                if (folderPath.equalsIgnoreCase("") || folderPath.equalsIgnoreCase("Please paste your filepath here.")){
+                    JOptionPane.showMessageDialog(null, "No folder path inputted.");
+                    return;
+                }
+
                 int amountOfPictures = Integer.parseInt(pictureEntry.getText());
-                int lotNum = Integer.parseInt(lotEntry.getText());
-
-
+                String lotNum = lotEntry.getText();
 
                 renameFiles(folderPath, amountOfPictures, lotNum);
 
-
-                lotEntry.setText(String.valueOf(lotNum + 1));
+                lotEntry.setText(String.valueOf(updateLotNum(lotNum)));
                 pictureEntry.setText("");
             }
         };
@@ -106,38 +99,46 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch();
-
     }
 
-
-
-    public static void renameFiles(String folderPath, int amountOfPictures, int lotNum){
+    public static void renameFiles(String folderPath, int amountOfPictures, String lotNum){
 
         int count = 0;
         File myFolder = new File(folderPath);
 
         File[] file_array = myFolder.listFiles();
 
-        for(int i = 0; i < file_array.length; i++){
+            for(int i = 0; i < file_array.length; i++){
 
-            if(count == amountOfPictures){
-                System.out.println("finished");
-            }else{
-                if (file_array[i].isFile()) {
-                    File myfile = new File(folderPath + "\\" + file_array[i].getName());
+                if(count != amountOfPictures){
+                    if (file_array[i].isFile()) {
 
-                    if(count < 1){
-                        myfile.renameTo(new File(folderPath + "\\" + lotNum + ".png"));
-                    }else{
-                        myfile.renameTo(new File(folderPath + "\\" + lotNum + "-" + (count+1) + ".png"));
+                        File myfile = new File(folderPath + "\\" + file_array[i].getName());
+                        if(count < 1){
+                            myfile.renameTo(new File(folderPath + "\\" + lotNum + ".png"));
+                        }else{
+                            myfile.renameTo(new File(folderPath + "\\" + lotNum + "-" + (count+1) + ".png"));
+                        }
                     }
+                    count++;
                 }
-                count++;
             }
+    }
 
+    public static int updateLotNum(String currentLotNum){
+        StringBuilder num = new StringBuilder();
+        String numChars = "0123456789";
 
-
+        for(int i = 0; i < currentLotNum.length(); i++){
+            for(int j = 0; j < 9; j++){
+                if(currentLotNum.charAt(i) == numChars.charAt(j)){
+                    num.append(currentLotNum.charAt(i));
+                    System.out.println(num);
+                }
+            }
         }
+        int lotNum = Integer.parseInt(String.valueOf(num));
 
+        return  lotNum + 1;
     }
 }
